@@ -1,0 +1,47 @@
+"""Instruction fields from variant 21, pages 88 and 89."""
+
+OPCODE_BITS = 6
+INSTRUCTION_BYTES = 6
+BYTE_ORDER = "little"
+MIN_VALUE = 0
+COMMAND_COLUMN_COUNT = 1
+FIELD_NAMES = ("B", "C", "D")
+COMMANDS = {
+    "LOAD_CONST": (15, (29, 6)),
+    "READ_MEM": (23, (26, 6)),
+    "WRITE_MEM": (55, (6, 6)),
+    "MUL": (53, (6, 26, 6)),
+}
+
+
+def check_value(value: int, width: int, field: str) -> None:
+    """Reject unsigned values that do not fit the instruction field."""
+    limit = 1 << width
+    if value < MIN_VALUE or value >= limit:
+        raise ValueError(f"{field} must be between 0 and {limit - 1}")
+
+
+def parse_number(text: str) -> int:
+    """Accept decimal integers and positive hexadecimal 0x literals."""
+    value = text.strip()
+    base = 16 if value.lower().startswith("0x") else 10
+    try:
+        return int(value, base)
+    except ValueError as error:
+        raise ValueError(f"Invalid integer: {text!r}") from error
+
+
+def parse_row(row: list[str]) -> dict:
+    """Convert one CSV row to the A, B, C and optional D fields."""
+    name = row[0].strip()
+    if name not in COMMANDS:
+        raise ValueError(f"Unknown command: {name!r}")
+    opcode, widths = COMMANDS[name]
+    if len(row) != len(widths) + COMMAND_COLUMN_COUNT:
+        raise ValueError(f"{name} expects {len(widths)} operands")
+    fields = {"A": opcode}
+    for field, width, text in zip(FIELD_NAMES, widths, row[1:]):
+        value = parse_number(text)
+        check_value(value, width, field)
+        fields[field] = value
+    return fields
