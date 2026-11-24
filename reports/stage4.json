@@ -1,0 +1,27 @@
+[
+  {
+    "source": "examples/multiply.csv",
+    "assembler": "Assembled instructions: 12",
+    "interpreter": "Executed instructions: 12",
+    "expected": [
+      42,
+      0,
+      3221225466
+    ],
+    "actual": [
+      42,
+      0,
+      3221225466
+    ],
+    "dump": {
+      "start": 400,
+      "end": 402,
+      "memory": {
+        "400": 42,
+        "401": 0,
+        "402": 3221225466
+      }
+    },
+    "matched": true
+  }
+]

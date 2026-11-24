@@ -2,7 +2,7 @@
 
 from .codec import decode_instruction
 from .commands import ADDRESS_BITS, INSTRUCTION_BYTES, REGISTER_COUNT
-from .commands import LOAD_CONST, READ_MEM, WRITE_MEM, check_value
+from .commands import LOAD_CONST, MUL, READ_MEM, WRITE_MEM, check_value
 
 
 def check_dump_range(start: int, end: int) -> None:
@@ -32,7 +32,7 @@ class Machine:
         self.memory[address] = value
 
     def execute(self, fields: dict) -> None:
-        """Execute the three memory instructions available in stage 3."""
+        """Dispatch all four instructions using the decoded field meanings."""
         opcode = fields["A"]
         if opcode == LOAD_CONST:
             self.registers[fields["C"]] = fields["B"]
@@ -41,8 +41,17 @@ class Machine:
         elif opcode == WRITE_MEM:
             address = self.registers[fields["C"]]
             self.write(address, self.registers[fields["B"]])
+        elif opcode == MUL:
+            self.multiply(fields)
         else:
-            raise ValueError("MUL execution is introduced in stage 4")
+            raise ValueError(f"Unknown opcode: {opcode}")
+
+    def multiply(self, fields: dict) -> None:
+        """Store M[C] times R[B] at the indirect address held in R[D]."""
+        first = self.read(fields["C"])
+        second = self.registers[fields["B"]]
+        address = self.registers[fields["D"]]
+        self.write(address, first * second)
 
     def dump(self, start: int, end: int) -> dict:
         """Return an inclusive address range, including zero-valued cells."""

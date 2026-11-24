@@ -1,0 +1,16 @@
+# Put 6 in M[297]. Register numbers match the MUL example in the PDF.
+LOAD_CONST,6,0
+LOAD_CONST,297,1
+WRITE_MEM,0,1
+# M[400] = M[297] * R[35] = 6 * 7.
+LOAD_CONST,7,35
+LOAD_CONST,400,2
+MUL,35,297,2
+# Multiplication by zero.
+LOAD_CONST,0,35
+LOAD_CONST,401,2
+MUL,35,297,2
+# Results are Python integers, not truncated to the constant-field width.
+LOAD_CONST,536870911,35
+LOAD_CONST,402,2
+MUL,35,297,2
