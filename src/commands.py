@@ -12,13 +12,24 @@ COMMANDS = {
     "WRITE_MEM": (55, (6, 6)),
     "MUL": (53, (6, 26, 6)),
 }
+OPCODES = {opcode: widths for opcode, widths in COMMANDS.values()}
 
 
 def check_value(value: int, width: int, field: str) -> None:
     """Reject unsigned values that do not fit the instruction field."""
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise ValueError(f"{field} must be an integer")
     limit = 1 << width
     if value < MIN_VALUE or value >= limit:
         raise ValueError(f"{field} must be between 0 and {limit - 1}")
+
+
+def get_widths(opcode: int) -> tuple:
+    """Find an instruction layout by its six-bit operation code."""
+    check_value(opcode, OPCODE_BITS, "A")
+    if opcode not in OPCODES:
+        raise ValueError(f"Unknown opcode: {opcode}")
+    return OPCODES[opcode]
 
 
 def parse_number(text: str) -> int:

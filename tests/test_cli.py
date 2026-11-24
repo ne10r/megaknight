@@ -1,4 +1,4 @@
-"""Exercise the stage-1 command line contract in a separate process."""
+"""Exercise the binary assembler contract in a separate process."""
 
 import subprocess
 import sys
@@ -19,14 +19,37 @@ def run_cli(*arguments):
 
 
 def test_test_mode(tmp_path):
-    """Print the PDF fields without prematurely creating machine code."""
+    """Save machine code and print all byte rows from the specification."""
     destination = tmp_path / "program.bin"
     result = run_cli("examples/spec.csv", str(destination), "--test")
     assert result.returncode == EXIT_SUCCESS
-    assert "A=15, B=394, C=12" in result.stdout
-    assert "A=53, B=35, C=297, D=2" in result.stdout
+    assert "0x8F, 0x62, 0x00, 0x00, 0x60, 0x00" in result.stdout
+    assert "0xF5, 0x98, 0x12, 0x00, 0x80, 0x00" in result.stdout
     assert result.stderr == ""
-    assert not destination.exists()
+    assert destination.read_bytes() == bytes.fromhex(
+        "8f6200006000 570300002600 777803000000 f59812008000"
+    )
+
+
+def test_invalid_input_preserves_output(tmp_path):
+    """Never replace an existing binary when a later CSV row is invalid."""
+    source = tmp_path / "invalid.csv"
+    source.write_text("LOAD_CONST,1,0\nUNKNOWN,1,2\n", encoding="utf-8")
+    output = tmp_path / "program.bin"
+    output.write_bytes(b"original")
+    result = run_cli(str(source), str(output))
+    assert result.returncode == EXIT_ERROR
+    assert output.read_bytes() == b"original"
+
+
+def test_same_input_and_output(tmp_path):
+    """Prevent replacing the assembly source with binary bytes."""
+    source = tmp_path / "source.csv"
+    content = "LOAD_CONST,1,0\n"
+    source.write_text(content, encoding="utf-8")
+    result = run_cli(str(source), str(source))
+    assert result.returncode == EXIT_ERROR
+    assert source.read_text(encoding="utf-8") == content
 
 
 def test_missing_source(tmp_path):
