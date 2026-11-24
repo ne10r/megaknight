@@ -6,11 +6,17 @@ BYTE_ORDER = "little"
 MIN_VALUE = 0
 COMMAND_COLUMN_COUNT = 1
 FIELD_NAMES = ("B", "C", "D")
+LOAD_CONST = 15
+READ_MEM = 23
+WRITE_MEM = 55
+MUL = 53
+REGISTER_COUNT = 64
+ADDRESS_BITS = 26
 COMMANDS = {
-    "LOAD_CONST": (15, (29, 6)),
-    "READ_MEM": (23, (26, 6)),
-    "WRITE_MEM": (55, (6, 6)),
-    "MUL": (53, (6, 26, 6)),
+    "LOAD_CONST": (LOAD_CONST, (29, 6)),
+    "READ_MEM": (READ_MEM, (26, 6)),
+    "WRITE_MEM": (WRITE_MEM, (6, 6)),
+    "MUL": (MUL, (6, 26, 6)),
 }
 OPCODES = {opcode: widths for opcode, widths in COMMANDS.values()}
 

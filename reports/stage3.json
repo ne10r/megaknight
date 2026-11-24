@@ -1,0 +1,30 @@
+[
+  {
+    "source": "examples/copy.csv",
+    "assembler": "Assembled instructions: 24",
+    "interpreter": "Executed instructions: 24",
+    "expected": [
+      7,
+      11,
+      19,
+      23
+    ],
+    "actual": [
+      7,
+      11,
+      19,
+      23
+    ],
+    "dump": {
+      "start": 200,
+      "end": 203,
+      "memory": {
+        "200": 7,
+        "201": 11,
+        "202": 19,
+        "203": 23
+      }
+    },
+    "matched": true
+  }
+]
